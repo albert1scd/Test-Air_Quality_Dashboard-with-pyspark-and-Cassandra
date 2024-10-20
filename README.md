@@ -19,7 +19,7 @@ This project demonstrates the integration of FastAPI and PySpark to create a sim
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/fastapi-pyspark-project.git
+   git clone https://github.com/albert1scd/Test-Air_Quality_Dashboard-with-pyspark-and-Cassandra.git
    cd fastapi-pyspark-project
    ```
 
