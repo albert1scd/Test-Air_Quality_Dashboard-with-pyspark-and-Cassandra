@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pyspark.sql import SparkSession
@@ -15,12 +16,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 spark = SparkSession.builder \
     .appName("AirQualityDashboard") \
     .config("spark.jars.packages", "com.datastax.spark:spark-cassandra-connector_2.12:3.0.0") \
-    .config("spark.cassandra.connection.host", "localhost") \
+    .config("spark.cassandra.connection.host", os.getenv("CASSANDRA_HOST", "localhost")) \
     .getOrCreate()
 
 # Initialize Cassandra connection
-cluster = Cluster(['localhost'])
-session = cluster.connect('air_quality')
+cluster = Cluster([os.getenv("CASSANDRA_HOST", "localhost")])
+session = cluster.connect(os.getenv("CASSANDRA_KEYSPACE", "air_quality"))
 session.row_factory = dict_factory
 
 @app.get("/")
@@ -33,7 +34,7 @@ async def get_air_quality(city: str):
         # Read directly from Cassandra using Spark
         df = spark.read \
             .format("org.apache.spark.sql.cassandra") \
-            .options(table="measurements", keyspace="air_quality") \
+            .options(table="measurements", keyspace=os.getenv("CASSANDRA_KEYSPACE", "air_quality")) \
             .load()
         
         df = df.filter(col("city") == city)
